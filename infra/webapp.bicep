@@ -1,25 +1,27 @@
-param webAppName string // uniqueString(resourceGroup().id) 
-param sku string = 'S1' // The SKU of App Service Plan
+param webAppName string
+param sku string = 'S1'
 param location string = resourceGroup().location
 
-// Variable to generate unique app service plan name
-var appServicePlanName = toLower('AppServicePlan-${webAppName}')
+// Generate App Service Plan name
+var appServicePlanName = toLower('asp-${webAppName}')
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: appServicePlanName
   location: location
-  properties: {
-    reserved: true
-  }
+  kind: 'linux'
   sku: {
     name: sku
+    tier: 'Standard'
+  }
+  properties: {
+    reserved: true
   }
 }
 
 resource appService 'Microsoft.Web/sites@2022-09-01' = {
   name: webAppName
-  kind: 'app'
   location: location
+  kind: 'app,linux'
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
